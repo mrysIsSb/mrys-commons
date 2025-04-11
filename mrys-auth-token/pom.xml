@@ -25,4 +25,13 @@
             <artifactId>spring-core</artifactId>
         </dependency>
     </dependencies>
+
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/mrysIsSb/mrys-commons</url>
+        </repository>
+    </distributionManagement>
 </project>
