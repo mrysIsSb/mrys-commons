@@ -1,15 +1,13 @@
 # This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
 
-name: Maven Package
+name: mrys-auth-token 打包
 
 on:
   workflow_dispatch:
-  push:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,9 +18,14 @@ jobs:
         with:
           distribution: 'temurin'  # 必须指定发行版（如 temurin、zulu、corretto 等）
           java-version: 21
-          server-id: github  # 对应 Maven settings.xml 中的 server-id
+#          server-id: github  # 对应 Maven settings.xml 中的 server-id
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
       - run: mvn deploy -DskipTests
         working-directory: ./mrys-auth-token
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
 
