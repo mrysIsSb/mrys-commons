@@ -18,7 +18,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'  # 必须指定发行版（如 temurin、zulu、corretto 等）
           java-version: 21
+          server-id: github  # 对应 Maven settings.xml 中的 server-id
       - run: mvn deploy -DskipTests
         working-directory: ./mrys-auth-token
         env:
