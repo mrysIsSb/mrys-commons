@@ -11,8 +11,10 @@
 
     <groupId>io.github.mrysissb</groupId>
     <artifactId>mrys-auth-token</artifactId>
+    <name>mrys-auth-token</name>
     <description>简单权限</description>
     <url>https://github.com/mrysIsSb/mrys-commons</url>
+    <version>0.0.2</version>
     <licenses>
         <license>
             <name>MIT License</name>
