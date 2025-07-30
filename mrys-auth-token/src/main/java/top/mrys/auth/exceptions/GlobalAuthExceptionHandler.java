@@ -1,5 +1,6 @@
 package top.mrys.auth.exceptions;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
@@ -8,9 +9,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import top.mrys.auth.properties.AuthProperties;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 全局认证异常处理器
@@ -25,6 +28,9 @@ public class GlobalAuthExceptionHandler {
 
     private final AuthProperties authProperties;
 
+    @Resource
+    private Optional<TokenExceptionAdapter> tokenExceptionAdapter;
+
     public GlobalAuthExceptionHandler(AuthProperties authProperties) {
         this.authProperties = authProperties;
     }
@@ -33,8 +39,12 @@ public class GlobalAuthExceptionHandler {
      * 处理 Token 异常
      */
     @ExceptionHandler(TokenException.class)
-    public ResponseEntity<Map<String, Object>> handleTokenException(TokenException e) {
+    public ResponseEntity<Object> handleTokenException(TokenException e) {
         log.warn("Token 异常: {}", e.getMessage());
+        // 如果有自定义的 Token 异常适配器，则使用它来处理异常
+        if (tokenExceptionAdapter.isPresent()) {
+            return (ResponseEntity<Object>) tokenExceptionAdapter.get().apply(e);
+        }
 
         Map<String, Object> errorResponse = createErrorResponse(
                 determineHttpStatus(e),
