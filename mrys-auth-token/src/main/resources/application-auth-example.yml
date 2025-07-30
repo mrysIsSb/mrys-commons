@@ -1,0 +1,102 @@
+# mrys-auth-token 认证框架配置示例
+# 将此文件重命名为 application.yml 或在你的配置文件中添加相应配置
+
+mrys:
+  auth:
+    # 是否启用认证框架
+    enabled: true
+    
+    # 拦截器顺序（数字越小优先级越高）
+    interceptor-order: 0
+    
+    # 包含的路径模式（需要认证的路径）
+    include-patterns:
+      - "/**"
+    
+    # 排除的路径模式（不需要认证的路径）
+    exclude-patterns:
+      - "/static/**"
+      - "/public/**"
+      - "/resources/**"
+      - "/META-INF/resources/**"
+      - "/webjars/**"
+      - "/favicon.ico"
+      - "/error"
+      - "/actuator/**"
+      - "/login"
+      - "/register"
+      - "/api/public/**"
+    
+    # Token 相关配置
+    token:
+      # Token 参数名（用于查询参数）
+      parameter-name: "token"
+      
+      # Token 请求头名称（按优先级排序）
+      header-names:
+        - "Authorization"
+        - "X-Authorization"
+        - "X-Token"
+        - "token"
+      
+      # Token Cookie 名称
+      cookie-name: "token"
+      
+      # 是否启用从请求头提取 Token
+      enable-header-extraction: true
+      
+      # 是否启用从查询参数提取 Token
+      enable-parameter-extraction: true
+      
+      # 是否启用从 Cookie 提取 Token
+      enable-cookie-extraction: true
+    
+    # SpEL 表达式配置
+    spel:
+      # 是否启用 SpEL 表达式缓存
+      enable-cache: true
+      
+      # SpEL 表达式缓存大小
+      cache-size: 256
+      
+      # 是否启用安全模式（禁用一些危险的 SpEL 功能）
+      secure-mode: true
+    
+    # 异常处理配置
+    exception:
+      # 是否启用全局异常处理
+      enable-global-handler: true
+      
+      # 认证失败时的 HTTP 状态码
+      auth-failure-status: 401
+      
+      # 权限不足时的 HTTP 状态码
+      access-denied-status: 403
+      
+      # 是否返回详细错误信息（生产环境建议设为 false）
+      include-error-details: false
+      
+      # 默认错误消息
+      default-error-message: "认证失败"
+
+# Spring Boot 相关配置
+spring:
+  # 应用名称
+  application:
+    name: mrys-auth-demo
+  
+  # Web 配置
+  web:
+    # 静态资源配置
+    resources:
+      static-locations:
+        - "classpath:/static/"
+        - "classpath:/public/"
+
+# 日志配置
+logging:
+  level:
+    top.mrys.auth: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

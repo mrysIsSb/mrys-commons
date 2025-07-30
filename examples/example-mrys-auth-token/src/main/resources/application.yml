@@ -1,0 +1,82 @@
+# mrys-auth-token 示例应用配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: example-mrys-auth-token
+  
+  # 日志配置
+logging:
+  level:
+    top.mrys.example.auth: DEBUG
+    top.mrys.auth: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/example-auth-token.log
+    max-size: 10MB
+    max-history: 30
+
+# 应用自定义配置
+app:
+  auth:
+    # Token 配置
+    token:
+      # Token 过期时间（秒）
+      expire-time: 3600
+      # Token 刷新时间（秒）
+      refresh-time: 1800
+      # Token 密钥
+      secret: "mrys-auth-token-example-secret-key"
+    
+    # 权限配置
+    permission:
+      # 是否启用权限验证
+      enabled: true
+      # 默认权限
+      default-permissions:
+        - "user:read"
+      # 管理员权限
+      admin-permissions:
+        - "user:read"
+        - "user:write"
+        - "user:delete"
+        - "admin:read"
+        - "admin:write"
+    
+    # 安全配置
+    security:
+      # 最大登录尝试次数
+      max-login-attempts: 5
+      # 账户锁定时间（分钟）
+      lock-duration: 30
+      # 密码最小长度
+      password-min-length: 6
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# 应用信息
+info:
+  app:
+    name: "@project.name@"
+    description: "mrys-auth-token 示例应用"
+    version: "@project.version@"
+    author: "mrys"
+  build:
+    time: "@maven.build.timestamp@"

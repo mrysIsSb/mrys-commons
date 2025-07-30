@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@CheckAuth("")
+@CheckAuth(value = "#isAuthenticated()", msg = "请先登录后再操作")
 public @interface RequireLogin {
 } 

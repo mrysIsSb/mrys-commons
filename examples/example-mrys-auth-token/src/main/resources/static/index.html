@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mrys-auth-token 示例应用</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .section h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .response {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .user-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .api-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .api-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 mrys-auth-token 示例应用</h1>
+        
+        <!-- 用户信息显示 -->
+        <div id="userInfo" class="user-info" style="display: none;">
+            <h3>当前用户信息</h3>
+            <div id="userDetails"></div>
+            <button onclick="logout()">退出登录</button>
+        </div>
+
+        <!-- 登录区域 -->
+        <div id="loginSection" class="section">
+            <h2>🚪 用户登录</h2>
+            <div class="form-group">
+                <label for="username">用户名:</label>
+                <select id="username">
+                    <option value="admin">admin (管理员)</option>
+                    <option value="user">user (普通用户)</option>
+                    <option value="locked_user">locked_user (锁定用户)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="password">密码:</label>
+                <input type="password" id="password" placeholder="用户名 + 123">
+            </div>
+            <button onclick="login()">登录</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <!-- API 测试区域 -->
+        <div id="apiSection" class="api-section" style="display: none;">
+            <!-- 用户 API -->
+            <div class="section">
+                <h2>👤 用户 API</h2>
+                <button onclick="getUserProfile()">获取个人信息</button>
+                <button onclick="updateProfile()">更新个人信息</button>
+                <button onclick="getUserById()">获取用户详情</button>
+                <button onclick="deleteUser()">删除用户</button>
+                <button onclick="testComplexAuth()">测试复杂权限</button>
+                <div id="userApiResult"></div>
+            </div>
+
+            <!-- 管理员 API -->
+            <div class="section">
+                <h2>👑 管理员 API</h2>
+                <button onclick="getAllUsers()">获取所有用户</button>
+                <button onclick="getSystemStats()">系统统计</button>
+                <button onclick="lockUser()">锁定用户</button>
+                <button onclick="unlockUser()">解锁用户</button>
+                <button onclick="getSystemLogs()">系统日志</button>
+                <button onclick="getSystemConfig()">系统配置</button>
+                <div id="adminApiResult"></div>
+            </div>
+        </div>
+
+        <!-- 公开 API -->
+        <div class="section">
+            <h2>🌍 公开 API</h2>
+            <button onclick="getPublicInfo()">获取公开信息</button>
+            <div id="publicApiResult"></div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="section">
+            <h2>📖 使用说明</h2>
+            <p><strong>测试账户:</strong></p>
+            <ul>
+                <li><strong>admin/admin123</strong> - 管理员账户，拥有所有权限</li>
+                <li><strong>user/user123</strong> - 普通用户，只有基本权限</li>
+                <li><strong>locked_user/locked_user123</strong> - 锁定用户，无法登录</li>
+            </ul>
+            <p><strong>权限说明:</strong></p>
+            <ul>
+                <li><strong>@RequireLogin</strong> - 只需要登录即可访问</li>
+                <li><strong>@CheckAuth("#user.hasPermission('user:read')")</strong> - 需要用户读取权限</li>
+                <li><strong>@CheckAuth("#user.hasRole('ADMIN')")</strong> - 需要管理员角色</li>
+                <li><strong>@CheckAuth("#user.hasRole('ADMIN') or #user.hasPermission('user:write')")</strong> - 复杂权限表达式</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentToken = null;
+        let currentUser = null;
+
+        // 页面加载时设置默认密码
+        document.getElementById('username').addEventListener('change', function() {
+            const username = this.value;
+            document.getElementById('password').value = username + '123';
+        });
+        
+        // 初始化默认密码
+        document.getElementById('password').value = 'admin123';
+
+        // 登录函数
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentToken = result.data.token;
+                    currentUser = result.data.username;
+                    showLoginSuccess(result);
+                    showUserInfo();
+                    showApiSection();
+                } else {
+                    showLoginError(result.message);
+                }
+            } catch (error) {
+                showLoginError('登录请求失败: ' + error.message);
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            currentToken = null;
+            currentUser = null;
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('apiSection').style.display = 'none';
+            clearResults();
+        }
+
+        // 显示登录成功
+        function showLoginSuccess(result) {
+            document.getElementById('loginResult').innerHTML = 
+                `<div class="success">登录成功！Token: ${result.data.token}</div>`;
+            document.getElementById('loginSection').style.display = 'none';
+        }
+
+        // 显示登录错误
+        function showLoginError(message) {
+            document.getElementById('loginResult').innerHTML = 
+                `<div class="error">登录失败: ${message}</div>`;
+        }
+
+        // 显示用户信息
+        async function showUserInfo() {
+            try {
+                const response = await apiCall('/api/user/profile', 'GET');
+                if (response.success) {
+                    const user = response.data;
+                    document.getElementById('userDetails').innerHTML = `
+                        <strong>用户名:</strong> ${user.username}<br>
+                        <strong>用户ID:</strong> ${user.userId}<br>
+                        <strong>邮箱:</strong> ${user.email}<br>
+                        <strong>状态:</strong> ${user.status}<br>
+                        <strong>角色:</strong> ${user.roles.join(', ')}<br>
+                        <strong>权限:</strong> ${user.permissions.join(', ')}
+                    `;
+                    document.getElementById('userInfo').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('获取用户信息失败:', error);
+            }
+        }
+
+        // 显示 API 测试区域
+        function showApiSection() {
+            document.getElementById('apiSection').style.display = 'grid';
+        }
+
+        // 清除结果
+        function clearResults() {
+            document.getElementById('loginResult').innerHTML = '';
+            document.getElementById('userApiResult').innerHTML = '';
+            document.getElementById('adminApiResult').innerHTML = '';
+            document.getElementById('publicApiResult').innerHTML = '';
+        }
+
+        // 通用 API 调用函数
+        async function apiCall(url, method = 'GET', body = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (currentToken) {
+                options.headers['Authorization'] = currentToken;
+            }
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, options);
+            return await response.json();
+        }
+
+        // 显示 API 结果
+        function showResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            const className = result.success ? 'success' : 'error';
+            element.innerHTML = `
+                <div class="${className}">${result.message || '请求完成'}</div>
+                <div class="response">${JSON.stringify(result, null, 2)}</div>
+            `;
+        }
+
+        // 用户 API 函数
+        async function getUserProfile() {
+            try {
+                const result = await apiCall('/api/user/profile');
+                showResult('userApiResult', result);
+            } catch (error) {
+                showResult('userApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function updateProfile() {
+            try {
+                const result = await apiCall('/api/user/profile', 'PUT', {
+                    email: 'new_email@example.com'
+                });
+                showResult('userApiResult', result);
+            } catch (error) {
+                showResult('userApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function getUserById() {
+            try {
+                const result = await apiCall('/api/user/1');
+                showResult('userApiResult', result);
+            } catch (error) {
+                showResult('userApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function deleteUser() {
+            try {
+                const result = await apiCall('/api/user/2', 'DELETE');
+                showResult('userApiResult', result);
+            } catch (error) {
+                showResult('userApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function testComplexAuth() {
+            try {
+                const result = await apiCall('/api/user/test-complex-auth', 'POST');
+                showResult('userApiResult', result);
+            } catch (error) {
+                showResult('userApiResult', { success: false, message: error.message });
+            }
+        }
+
+        // 管理员 API 函数
+        async function getAllUsers() {
+            try {
+                const result = await apiCall('/api/admin/users');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function getSystemStats() {
+            try {
+                const result = await apiCall('/api/admin/stats');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function lockUser() {
+            try {
+                const result = await apiCall('/api/admin/users/2/lock', 'POST');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function unlockUser() {
+            try {
+                const result = await apiCall('/api/admin/users/2/unlock', 'POST');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function getSystemLogs() {
+            try {
+                const result = await apiCall('/api/admin/logs');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        async function getSystemConfig() {
+            try {
+                const result = await apiCall('/api/admin/config');
+                showResult('adminApiResult', result);
+            } catch (error) {
+                showResult('adminApiResult', { success: false, message: error.message });
+            }
+        }
+
+        // 公开 API 函数
+        async function getPublicInfo() {
+            try {
+                const result = await apiCall('/api/user/public');
+                showResult('publicApiResult', result);
+            } catch (error) {
+                showResult('publicApiResult', { success: false, message: error.message });
+            }
+        }
+    </script>
+</body>
+</html>
