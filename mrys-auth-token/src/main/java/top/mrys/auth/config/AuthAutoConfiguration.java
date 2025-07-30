@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -58,9 +59,9 @@ public class AuthAutoConfiguration {
      */
     @Bean
     @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public AuthSpelEvaluator authSpelEvaluator() {
+    public AuthSpelEvaluator authSpelEvaluator(ApplicationContext applicationContext) {
         log.debug("创建新的 AuthSpelEvaluator 实例");
-        return new AuthSpelEvaluator();
+        return new AuthSpelEvaluator(applicationContext);
     }
 
     /**

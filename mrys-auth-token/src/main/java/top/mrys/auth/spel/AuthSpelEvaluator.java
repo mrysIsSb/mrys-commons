@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -30,10 +32,16 @@ public class AuthSpelEvaluator {
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ConcurrentMap<String, Expression> expressionCache = new ConcurrentHashMap<>();
     private final AuthSpelFunctions spelFunctions = new AuthSpelFunctions();
+    private final ApplicationContext applicationContext;
 
     @Getter
     @Setter
     private Consumer<EvaluationContext> evaluationContextConsumer;
+
+    public AuthSpelEvaluator(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
 
     /**
      * 评估 SpEL 表达式
@@ -96,6 +104,8 @@ public class AuthSpelEvaluator {
 
         // 设置根对象为认证上下文
         evalContext.setRootObject(context);
+
+        evalContext.setBeanResolver(new BeanFactoryResolver(applicationContext));
 
         // 注册变量
         evalContext.setVariable("token", context.getToken());
