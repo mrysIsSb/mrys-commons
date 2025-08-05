@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "swagger-docs-stdio": {
+      "command": "java",
+      "args": [
+        "-cp",
+        "target\\classes;target\\dependency\\*",
+        "top.mrys.swagger.mcp.SwaggerMcpServer"
+      ],
+      "env": {
+        "SWAGGER_SOURCES": "default=http://localhost:8080/v3/api-docs,petstore=https://petstore3.swagger.io/api/v3/openapi.json"
+      }
+    },
+    "swagger-docs-http-client": {
+      "command": "java",
+      "args": [
+        "-cp",
+        "target\\mrys-swagger-mcp-0.0.1-jar-with-dependencies.jar",
+        "top.mrys.swagger.mcp.SwaggerMcpClient",
+        "http://localhost:8080"
+      ],
+      "env": {
+        "SWAGGER_SOURCES": "default=http://localhost:8080/v3/api-docs,petstore=https://petstore3.swagger.io/api/v3/openapi.json"
+      }
+    }
+  }
+}

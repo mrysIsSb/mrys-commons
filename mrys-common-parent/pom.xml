@@ -18,6 +18,7 @@
 
     <modules>
         <module>../mrys-auth-token</module>
+        <module>../mrys-swagger-mcp</module>
         <module>../examples</module>
     </modules>
 
