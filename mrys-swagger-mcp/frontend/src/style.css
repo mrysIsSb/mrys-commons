@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+html {
+    font-size: 16px;
+}
+
+@layer base {
+
+    button {
+        @apply px-4 py-2 h-8 leading-0 rounded-md;
+    }
+}
+
+@layer components {}
+
+@layer utilities {}

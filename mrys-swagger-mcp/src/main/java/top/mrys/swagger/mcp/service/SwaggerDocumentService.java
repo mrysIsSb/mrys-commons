@@ -50,7 +50,7 @@ public class SwaggerDocumentService {
         // 检查缓存
         CachedDocument cached = documentCache.get(source);
         if (cached != null && !cached.isExpired()) {
-            log.debug("从缓存获取文档: {}", source);
+            log.info("从缓存获取文档: {}", source);
             return cached.getContent();
         }
         
